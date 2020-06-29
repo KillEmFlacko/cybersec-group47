@@ -13,6 +13,8 @@ sanic-envconfig = "*"
 databases = {extras = ["postgresql"], version = "*"}
 cryptography = "*"
 randomgen = "*"
+guizero = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.8"

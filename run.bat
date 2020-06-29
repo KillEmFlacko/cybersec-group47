@@ -1,1 +1,1 @@
-pipenv run python -m project
+pipenv run python -m lab_svr gui

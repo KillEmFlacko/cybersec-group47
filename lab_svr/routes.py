@@ -1,6 +1,6 @@
 from sanic import response
 from sanic.response import json
-from project.lab_svr.tables import contacts
+from lab_svr.tables import contacts
 
 
 def setup_routes(app):
