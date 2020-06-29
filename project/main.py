@@ -12,11 +12,17 @@ def setup_lab_database():
 
     @lab_svr_app.listener('after_server_start')
     async def connect_to_db(*args, **kwargs):
-        await lab_svr_app.db.connect()
+        try:
+            await lab_svr_app.db.connect()
+        except:
+            print("DB Connection Error")
 
     @lab_svr_app.listener('after_server_stop')
     async def disconnect_from_db(*args, **kwargs):
-        await lab_svr_app.db.disconnect()
+        try:
+            await lab_svr_app.db.disconnect()
+        except:
+            print("DB Disconnection Error")
 
 
 def init():

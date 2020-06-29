@@ -1,3 +1,4 @@
+from sanic import response
 from sanic.response import json
 from project.lab_svr.tables import contacts
 
@@ -14,3 +15,7 @@ def setup_routes(app):
         return json({
             'contacts': [{row['ephid1']: row['ephid2']} for row in rows]
         })
+
+    @app.route("/test")
+    async def contacts_list(request):
+        return response.text("OK")
