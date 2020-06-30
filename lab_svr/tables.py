@@ -1,12 +1,22 @@
 import sqlalchemy
+from sqlalchemy.dialects.postgresql import BYTEA, BIGINT,CHAR, TIMESTAMP
 
 metadata = sqlalchemy.MetaData()
 
 contacts = sqlalchemy.Table(
-    'contact-event',
+    'ContactEvent',
     metadata,
-    sqlalchemy.Column('id', sqlalchemy.VARCHAR, primary_key=True),
-    sqlalchemy.Column('ephid1', sqlalchemy.VARCHAR),
-    sqlalchemy.Column('ephid2', sqlalchemy.VARCHAR),
-    sqlalchemy.Column('created_timestamp', sqlalchemy.TIMESTAMP),
+    sqlalchemy.Column('id', CHAR, primary_key=True),
+    sqlalchemy.Column('ephid1', CHAR),
+    sqlalchemy.Column('ephid2', CHAR),
+    sqlalchemy.Column('created_timestamp', TIMESTAMP),
+)
+
+shares = sqlalchemy.Table(
+    'Share',
+    metadata,
+    sqlalchemy.Column('id', BIGINT, primary_key=True),
+    sqlalchemy.Column('contact_id', CHAR),
+    sqlalchemy.Column('x', CHAR),
+    sqlalchemy.Column('y', CHAR),
 )

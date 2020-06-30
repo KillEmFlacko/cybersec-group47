@@ -18,8 +18,7 @@ def _eval_at(poly: int, x: int, prime: int) -> int:
 
     return accum
 
-@typechecked
-def make_share(poly: list[int], x: int, prime=_PRIME) -> list[int]:
+def make_share(poly, x, prime=_PRIME):
     """
     Generates a share.
     """
@@ -27,7 +26,6 @@ def make_share(poly: list[int], x: int, prime=_PRIME) -> list[int]:
 
     return point
 
-@typechecked
 def make_polynomial(secret: bytes) -> bytes:
     """
     Generates coefficients for a degree 1 polynomial. Returns the list of coefficients [a0, a1]
@@ -39,7 +37,6 @@ def make_polynomial(secret: bytes) -> bytes:
     poly = [int.from_bytes(secret, "big"), int.from_bytes(a1, "big")]
     return poly
 
-@typechecked
 def make_secret(EphID1: bytes, EphID2: bytes) -> bytes:
     if EphID1 > EphID2:
         secret = EphID1 + EphID2
@@ -104,8 +101,8 @@ def _lagrange_interpolate(x, x_s, y_s, p):
                for i in range(k)])
     return (_divmod(num, den, p) + p) % p
 
-@typechecked
-def recover_secret(shares: list[int], prime=_PRIME) -> int:
+
+def recover_secret(shares, prime=_PRIME) -> int:
     """
     Recover the secret from share points
     (x, y points on the polynomial).

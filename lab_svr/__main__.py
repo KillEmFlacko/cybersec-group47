@@ -2,9 +2,10 @@ from sanic import Sanic
 from databases import Database
 from environs import Env
 from sanic.log import logger
+from sanic import response
 
 from lab_svr.settings import Settings
-from lab_svr.routes import setup_routes
+from lab_svr.views import ShareView
 
 lab_svr_app = Sanic(__name__)
 
@@ -26,6 +27,12 @@ def setup_lab_database():
         except:
             logger.error("DB Disconnection Error")
 
+def setup_routes(app):
+    @app.route("/")
+    async def test(request):
+        return response.text("OK")
+
+    app.add_route(ShareView.as_view(), '/new_share')
 
 def init():
     env = Env()

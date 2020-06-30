@@ -4,13 +4,14 @@ from cryptography.hazmat.primitives import hashes, hmac
 from randomgen.aes import AESCounter
 from numpy.random import Generator
 import secretsharing as ss
+import numpy as np
 
 
 class User:
     def __init__(self, t=0):
         self.day = 0
         self.time = t
-        self._gen = Generator()
+        self._gen = None
         self._ephid = b''
         self._skt = os.urandom(16)
         self._nonce = None
@@ -22,8 +23,9 @@ class User:
         return self._skt;
 
     def _day_setup(self):
-        self._hash.update(self._skt)
-        self._skt = self._hash.copy().finalize()
+        h = self._hash.copy()
+        h.update(self._skt)
+        self._skt = h.finalize()
 
         prf = hmac.HMAC(self._skt, hashes.SHA256(), backend=default_backend())
         prf.update(b"broadcast key")
@@ -34,7 +36,7 @@ class User:
 
     def next_day(self):
         self.day += 1
-        self.time = 0;
+        self.time = 0
         self._day_setup()
 
     def next_day_time(self):
@@ -49,14 +51,19 @@ class User:
             self._nonce = os.urandom(16)
 
     def get_share(self, other_ephid):
-        x_b = self._hash.update(self._skt + self._nonce).copy().finalize()
+        h = self._hash.copy()
+        h.update(self._skt + self._nonce)
+        x_b = h.finalize()
         x = int.from_bytes(x_b, "big")
         secret = ss.make_secret(self._ephid, other_ephid)
         poly = ss.make_polynomial(secret)
 
+        h = self._hash.copy()
         if self._ephid > other_ephid:
-            share_id = self._hash.update(other_ephid + self._ephid).copy().finalize()
+            h.update(other_ephid + self._ephid)
         else:
-            share_id = self._hash.update(self._ephid + other_ephid).copy().finalize()
+            h.update(self._ephid + other_ephid)
 
-        return share_id, ss.make_share(poly, x)
+        contact_id = h.finalize()
+
+        return contact_id, ss.make_share(poly, x)
