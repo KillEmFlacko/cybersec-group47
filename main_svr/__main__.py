@@ -2,9 +2,7 @@ from sanic import Sanic, response
 from databases import Database
 from environs import Env
 from sanic.log import logger
-
 from main_svr.settings import Settings
-from main_svr.tables import infects
 from main_svr.views import MainView
 
 main_svr_app = Sanic(__name__)
@@ -17,6 +15,7 @@ def setup_lab_database():
     async def connect_to_db(*args, **kwargs):
         try:
             await main_svr_app.db.connect()
+            logger.info("DB connected")
         except:
             logger.error("DB Connection Error")
 
@@ -24,6 +23,7 @@ def setup_lab_database():
     async def disconnect_from_db(*args, **kwargs):
         try:
             await main_svr_app.db.disconnect()
+            logger.info("DB disconnected")
         except:
             logger.error("DB Disconnection Error")
 

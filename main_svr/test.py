@@ -6,8 +6,8 @@ from main_svr.settings import Settings
 u = User()
 u.give_epidem_auth()
 
-json_cnt = {'skt':u.get_skt().hex(), 'nonce':u._nonce.hex()}
-r = requests.post('http://localhost:' + str(Settings.PORT) + '/',json=json.dumps(json_cnt))
+json_cnt = {'skt': u.get_skt().hex(), 'nonce': u._nonce.hex(), 'start_date': '2020-06-21'}
+r = requests.post('http://localhost:' + str(Settings.PORT) + '/', json=json.dumps(json_cnt))
 print(r.text)
 '''
 params = {'last_id':12345}

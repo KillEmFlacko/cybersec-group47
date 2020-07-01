@@ -1,5 +1,5 @@
 import sqlalchemy
-from sqlalchemy.dialects.postgresql import BYTEA, BIGINT,CHAR, TIMESTAMP
+from sqlalchemy.dialects.postgresql import BIGINT, CHAR, TIMESTAMP, DATE
 
 metadata = sqlalchemy.MetaData()
 
@@ -19,4 +19,14 @@ shares = sqlalchemy.Table(
     sqlalchemy.Column('contact_id', CHAR),
     sqlalchemy.Column('x', CHAR),
     sqlalchemy.Column('y', CHAR),
+)
+
+infects = sqlalchemy.Table(
+    'infect',
+    metadata,
+    sqlalchemy.Column('id', BIGINT, primary_key=True),
+    sqlalchemy.Column('skt', CHAR),
+    sqlalchemy.Column('nonce', CHAR),
+    sqlalchemy.Column('created_date', DATE),
+    sqlalchemy.Column('start_date', DATE),
 )

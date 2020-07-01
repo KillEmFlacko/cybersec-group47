@@ -1,6 +1,5 @@
 from sanic import response
-from sanic.log import logger
-import json as pyjson
+import json
 from sanic.views import HTTPMethodView
 import secretsharing as ss
 
@@ -8,15 +7,16 @@ from lab_svr.tables import contacts, shares
 
 
 class ShareView(HTTPMethodView):
+    async def get(self, request):
+        return response.text("OK")
+
     async def post(self, request):
         if request.content_type != 'application/json':
-            return
-        prs_js = pyjson.loads(request.json)
+            response.text('FORBIDDEN',status=403)
+        prs_js = json.loads(request.json)
         cont_id = prs_js['contact_id']
         x = prs_js['share']['x']
         y = prs_js['share']['y']
-        logger.info('\n' + cont_id + " \n" + x + '\n' + y)
-        logger.info("contact_id len : " + str(len(cont_id)))
         get_shares_q = shares.select().where(shares.c.contact_id == cont_id)
         rows = await request.app.db.fetch_all(get_shares_q)
 
@@ -28,9 +28,9 @@ class ShareView(HTTPMethodView):
             if row['x'] != x:
                 query = shares.insert().values(contact_id=cont_id, x=x, y=y)
             else:
-                response.text('REFUSED')
+                response.text('FORBIDDEN',status=403)
         else:
-            return response.text('REFUSED')
+            return response.text('FORBIDDEN',status=403)
 
         if query is not None: await request.app.db.execute(query)
 

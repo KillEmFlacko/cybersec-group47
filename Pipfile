@@ -16,6 +16,7 @@ randomgen = "*"
 guizero = "*"
 numpy = "*"
 requests = "*"
+sanic-scheduler = "*"
 
 [requires]
 python_version = "3.8"
