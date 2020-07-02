@@ -18,7 +18,7 @@ from lab_svr.views import ShareView
 
 lab_svr_app = Sanic(__name__)
 scheduler = SanicScheduler(lab_svr_app)
-hash = hashes.Hash(hashes.SHA256(), backend=default_backend())
+hash_f = hashes.Hash(hashes.SHA256(), backend=default_backend())
 iso_format = '%Y-%m-%d'
 
 
@@ -47,7 +47,7 @@ async def daily_task(app):
 
         hash_out_str = None
         if act_nonce is not None:
-            h = hash.copy()
+            h = hash_f.copy()
             h.update(act_skt + act_nonce)
             hash_out = h.finalize()
             hash_out_str = hash_out.hex()
@@ -68,14 +68,13 @@ async def daily_task(app):
                 if app.config.DEBUG:
                     logger.info('EphID : ' + ephid.hex() + ', SKt : ' + act_skt.hex())
                     logger.info("Fake contacts found : " + str(result) + ', Nonce : ' + str(act_nonce or 'None'))
-            h = hash.copy()
+            h = hash_f.copy()
             h.update(act_skt)
             act_skt = h.finalize()
 
     if len(rows_list) > 0:
         f = open(app.config.ID_FILE, 'w')
         f.write(str(rows_list[-1]['id']))
-    return response.text(output_str + '\n' + 'OK')
 
 
 def setup_lab_database():

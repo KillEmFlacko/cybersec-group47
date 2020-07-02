@@ -20,13 +20,3 @@ shares = sqlalchemy.Table(
     sqlalchemy.Column('x', CHAR),
     sqlalchemy.Column('y', CHAR),
 )
-
-infects = sqlalchemy.Table(
-    'infect',
-    metadata,
-    sqlalchemy.Column('id', BIGINT, primary_key=True),
-    sqlalchemy.Column('skt', CHAR),
-    sqlalchemy.Column('nonce', CHAR),
-    sqlalchemy.Column('created_date', DATE),
-    sqlalchemy.Column('start_date', DATE),
-)
