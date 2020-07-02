@@ -1,1 +1,0 @@
-pipenv run python -m lab_svr gui

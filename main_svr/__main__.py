@@ -1,7 +1,8 @@
-from sanic import Sanic, response
 from databases import Database
 from environs import Env
+from sanic import Sanic
 from sanic.log import logger
+
 from main_svr.settings import Settings
 from main_svr.views import MainView
 

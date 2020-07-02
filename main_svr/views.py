@@ -1,9 +1,11 @@
+import json
+from datetime import datetime
+
 from sanic import response
 from sanic.log import logger
 from sanic.views import HTTPMethodView
+
 from main_svr.tables import infects
-from datetime import datetime
-import json
 
 
 class MainView(HTTPMethodView):

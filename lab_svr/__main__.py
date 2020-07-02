@@ -1,23 +1,17 @@
+from datetime import datetime
+from datetime import timedelta
+
 import requests
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, hmac
+from databases import Database
+from environs import Env
 from numpy.random._generator import Generator
 from randomgen.aes import AESCounter
 from sanic import Sanic, response
-from databases import Database
-from environs import Env
 from sanic.log import logger
 from sanic_scheduler import SanicScheduler, task
-from datetime import timedelta
-
-from sqlalchemy import String
-from sqlalchemy.orm import Session
-
-from lab_svr.tables import infects, contacts
-import json
-from sqlalchemy.sql.expression import func, select, or_, bindparam
 from sqlalchemy.sql import text
-from datetime import datetime
 
 from lab_svr.settings import Settings
 from lab_svr.views import ShareView
@@ -28,24 +22,20 @@ hash = hashes.Hash(hashes.SHA256(), backend=default_backend())
 iso_format = '%Y-%m-%d'
 
 
-@lab_svr_app.route('/daily_task')
-# @task(start=timedelta(seconds=5), period=timedelta(seconds=10))
-async def daily_task(req):
-    app = req.app
-    logger.info("DAILY TASK")
-    query = select([func.coalesce(func.max(infects.c.id), -1)])
-    record = await app.db.fetch_all(query)
-    last_id = record[0][0]
+@task(start=timedelta(seconds=5), period=timedelta(seconds=10))
+async def daily_task(app):
+    try:
+        f = open(app.config.ID_FILE, 'r')
+        last_id = int(f.readline())
+    except (IOError, ValueError):
+        last_id = -1
+
     params = {'last_id': last_id}
-    resp = requests.get('https://localhost:8080/', params=params, verify='ca_certs')
+    resp = requests.get('https://' + app.config.MAIN_SVR + '/', params=params, verify='ca_certs')
     rows_list = resp.json()['skts']
 
     output_str = 'DAY\tPART\tEPHID\n'
-    insert_txt = '''INSERT INTO "infect"("skt","nonce","created_date","start_date")
-    VALUES
-    '''
     for rec in rows_list:
-        insert_txt += "( '"+rec['skt']+"','"+rec['nonce']+"','"+rec['created_date']+"','"+rec['start_date']+"'),"
         start_date = datetime.strptime(rec['start_date'], iso_format)
         created_date = datetime.strptime(rec['created_date'], iso_format)
         days = (created_date - start_date).days
@@ -81,9 +71,11 @@ async def daily_task(req):
             h = hash.copy()
             h.update(act_skt)
             act_skt = h.finalize()
-    # TODO Insert
 
-    return response.text(insert_txt + '\n' + 'OK')
+    if len(rows_list) > 0:
+        f = open(app.config.ID_FILE, 'w')
+        f.write(str(rows_list[-1]['id']))
+    return response.text(output_str + '\n' + 'OK')
 
 
 def setup_lab_database():

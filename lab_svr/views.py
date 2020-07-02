@@ -1,8 +1,9 @@
-from sanic import response
 import json
-from sanic.views import HTTPMethodView
-import secretsharing as ss
 
+from sanic import response
+from sanic.views import HTTPMethodView
+
+import secretsharing as ss
 from lab_svr.tables import contacts, shares
 
 

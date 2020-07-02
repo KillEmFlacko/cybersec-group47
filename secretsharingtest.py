@@ -1,10 +1,9 @@
 import os
-import secretsharing as ss
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, hmac
-from randomgen.aes import AESCounter
-from numpy.random import Generator
 
+import secretsharing as ss
 
 # Utente 1
 seed1 = os.urandom(16)

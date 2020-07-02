@@ -1,6 +1,5 @@
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from pytypes import typechecked
 
 # 13th Mersenne Prime is 2**521 - 1
 _PRIME = 2 ** 521 - 1

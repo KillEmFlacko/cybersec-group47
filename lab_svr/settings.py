@@ -9,3 +9,5 @@ class Settings(EnvConfig):
     DAY_PARTS: int = 0
     CERT: str = ''
     KEY: str = ''
+    ID_FILE: str = ''
+    MAIN_SVR: str = ''

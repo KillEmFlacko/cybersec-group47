@@ -1,10 +1,11 @@
 import os
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, hmac
-from randomgen.aes import AESCounter
 from numpy.random import Generator
+from randomgen.aes import AESCounter
+
 import secretsharing as ss
-import numpy as np
 
 
 class User:

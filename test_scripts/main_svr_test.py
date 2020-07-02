@@ -1,7 +1,9 @@
 import json
-from gui.user import User
+
 import requests
+
 from main_svr.settings import Settings
+from test_scripts.user import User
 
 s = requests.Session()
 s.verify = "ca_certs"
