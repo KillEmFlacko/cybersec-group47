@@ -1,8 +1,7 @@
-
 #####
 # Questo modulo contiene le funzioni che implementano la variante di Shamir's Secret Sharing proposta nel nostro progetto.
 #
-# Il codice che segue è una modifica dell''implementazione pubblicata sulla pagina 
+# Il codice che segue è una modifica dell'implementazione pubblicata sulla pagina
 # https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing
 # sotto i termini di CC0 e OWFa
 # https://creativecommons.org/publicdomain/zero/1.0/
@@ -13,9 +12,9 @@
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 
-
 # 13-esimo numero primo di Mersenne
 _PRIME = 2 ** 521 - 1
+
 
 def _eval_at(poly: int, x: int, prime: int) -> int:
     """
@@ -26,7 +25,7 @@ def _eval_at(poly: int, x: int, prime: int) -> int:
     : param p : il numero primo che definisce il campo finito
     : return : il valore P(x)
     """
-    
+
     accum = 0
     for coeff in reversed(poly):
         accum *= x
@@ -34,6 +33,7 @@ def _eval_at(poly: int, x: int, prime: int) -> int:
         accum %= prime
 
     return accum
+
 
 def make_share(poly, x, prime=_PRIME):
     """
@@ -43,10 +43,11 @@ def make_share(poly, x, prime=_PRIME):
     : param p : il numero primo che definisce il campo finito
     : return : la lista [x, P(x)]
     """
-    
+
     point = [x, _eval_at(poly, x, prime)]
 
     return point
+
 
 def make_polynomial(secret: bytes) -> bytes:
     """
@@ -54,12 +55,12 @@ def make_polynomial(secret: bytes) -> bytes:
     : param secret : il segreto da condividere, come sequenza di byte. Usato come termine noto del polinomio in formato intero
     : return : i coefficienti del polinomio come lista di interi [a0,ai]
     """
-    
+
     digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
     digest.update(secret)
     a1 = digest.finalize()
     poly = [int.from_bytes(secret, "big"), int.from_bytes(a1, "big")]
-    
+
     return poly
 
 
@@ -69,7 +70,7 @@ def _extended_gcd(a, b):
     Chiamata da _divmod.
     : param a,b : interi
     """
-    
+
     x = 0
     last_x = 1
     y = 1
@@ -79,8 +80,9 @@ def _extended_gcd(a, b):
         a, b = b, a % b
         x, last_x = last_x - quot * x, x
         y, last_y = last_y - quot * y, y
-        
+
     return last_x, last_y
+
 
 def _divmod(num, den, p):
     """
@@ -90,10 +92,11 @@ def _divmod(num, den, p):
     : param p : il numero primo che definisce il campo finito
     : return : (num/den) mod p
     """
-    
+
     inv, _ = _extended_gcd(den, p)
-    
+
     return num * inv
+
 
 def _lagrange_interpolate(x, x_s, y_s, p):
     """
@@ -103,8 +106,8 @@ def _lagrange_interpolate(x, x_s, y_s, p):
     : param y_s : tupla contenente le y dei punti
     : param p : il numeor primo che definisce il campo finito
     : return : P(x)
-    """    
-    
+    """
+
     k = len(x_s)
     assert k == len(set(x_s)), "points must be distinct"
 
@@ -124,7 +127,7 @@ def _lagrange_interpolate(x, x_s, y_s, p):
     den = PI(dens)
     num = sum([_divmod(nums[i] * den * y_s[i] % p, dens[i], p)
                for i in range(k)])
-    
+
     return (_divmod(num, den, p) + p) % p
 
 
@@ -135,12 +138,13 @@ def recover_secret(shares, prime=_PRIME) -> int:
     : param prime: Il numero primo che definisce il campo finito
     : return: il segreto come numero intero
     """
-    
+
     if len(shares) < 2:
         raise ValueError("need at least two shares")
     x_s, y_s = zip(*shares)
-    
+
     return _lagrange_interpolate(0, x_s, y_s, prime)
+
 
 def make_secret(EphID1: bytes, EphID2: bytes) -> bytes:
     """
@@ -148,7 +152,7 @@ def make_secret(EphID1: bytes, EphID2: bytes) -> bytes:
     : param EphID1, EphID2: i due EphIDs come sequenze di byte
     : return : il segreto come sequenza di byte
     """
-    
+
     if EphID1 > EphID2:
         secret = EphID1 + EphID2
     else:
