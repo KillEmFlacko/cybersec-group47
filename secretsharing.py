@@ -17,9 +17,15 @@ from cryptography.hazmat.primitives import hashes
 # 13-esimo numero primo di Mersenne
 _PRIME = 2 ** 521 - 1
 
-# Valuta il polinomio (lista di coefficienti [a0, a1]) nel punto x.
-# Usata per generare uno share in make_share
 def _eval_at(poly: int, x: int, prime: int) -> int:
+    """
+    Valuta il polinomio (lista di coefficienti [a0, a1]) nel punto x.
+    Usata per generare uno share in make_share.
+    : param poly : lista dei coefficienti del polynomio
+    : param x : numero intero per cui valutare il polinomio
+    : param p : il numero primo che definisce il campo finito
+    : return : il valore P(x)
+    """
     
     accum = 0
     for coeff in reversed(poly):
@@ -29,16 +35,25 @@ def _eval_at(poly: int, x: int, prime: int) -> int:
 
     return accum
 
-# Genera uno share [x, P(x)]
 def make_share(poly, x, prime=_PRIME):
+    """
+    Genera uno share [x, P(x)]
+    : param poly : lista dei coefficienti del polinomio come restituiti da make_poly
+    : param x : il numero intero in cui valutare il polinomio
+    : param p : il numero primo che definisce il campo finito
+    : return : la lista [x, P(x)]
+    """
     
     point = [x, _eval_at(poly, x, prime)]
 
     return point
 
-# Genera i coefficienti di un polinomio di grado 1.
-# Restituisce la lista dei coefficienti [a0, a1]
 def make_polynomial(secret: bytes) -> bytes:
+    """
+    Genera i coefficienti di un polinomio di grado 1.
+    : param secret : il segreto da condividere, come sequenza di byte. Usato come termine noto del polinomio in formato intero
+    : return : i coefficienti del polinomio come lista di interi [a0,ai]
+    """
     
     digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
     digest.update(secret)
@@ -47,9 +62,13 @@ def make_polynomial(secret: bytes) -> bytes:
     
     return poly
 
-# Extended Euclidean Algorithm utilizzato per la divisione in aritmetoca modulare.
-# Chiamata da _divmod.
+
 def _extended_gcd(a, b):
+    """
+    Extended Euclidean Algorithm utilizzato per la divisione in aritmetoca modulare.
+    Chiamata da _divmod.
+    : param a,b : interi
+    """
     
     x = 0
     last_x = 1
@@ -63,16 +82,29 @@ def _extended_gcd(a, b):
         
     return last_x, last_y
 
-# Calcola (num/den) mod p.
-# Il valore di ritorno sarà tale che: den * _divmod(num, den, p) mod p == num
 def _divmod(num, den, p):
+    """
+    Calcola (num/den) mod p.
+    Il valore di ritorno sarà tale che: den * _divmod(num, den, p) mod p == num
+    : param num,den : interi
+    : param p : il numero primo che definisce il campo finito
+    : return : (num/den) mod p
+    """
     
     inv, _ = _extended_gcd(den, p)
     
     return num * inv
 
-# Interpolazione di Lagrange per ricavare il segreto ricostruendo il polinomio
 def _lagrange_interpolate(x, x_s, y_s, p):
+    """
+    Trova il valore P(x) dati n punti (xi, yi). Utilizzata per ricavare il segreto (P(0)).
+    : param x : il punto in cui calcolare il valore del polinomio, intero
+    : param x_s : tupla contenenti le x dei punti
+    : param y_s : tupla contenente le y dei punti
+    : param p : il numeor primo che definisce il campo finito
+    : return : P(x)
+    """    
+    
     k = len(x_s)
     assert k == len(set(x_s)), "points must be distinct"
 
@@ -96,8 +128,13 @@ def _lagrange_interpolate(x, x_s, y_s, p):
     return (_divmod(num, den, p) + p) % p
 
 
-# Ricostruisce il segreto partendo dagli share.
 def recover_secret(shares, prime=_PRIME) -> int:
+    """
+    Ricostruisce il segreto partendo dai due share.
+    : param shares: lista di due shares come restituiti da make_share
+    : param prime: Il numero primo che definisce il campo finito
+    : return: il segreto come numero intero
+    """
     
     if len(shares) < 2:
         raise ValueError("need at least two shares")
@@ -105,8 +142,12 @@ def recover_secret(shares, prime=_PRIME) -> int:
     
     return _lagrange_interpolate(0, x_s, y_s, prime)
 
-# Costruisce il segreto come concatenazione di due EphID
 def make_secret(EphID1: bytes, EphID2: bytes) -> bytes:
+    """
+    Costruisce il segreto come concatenazione di due EphID
+    : param EphID1, EphID2: i due EphIDs come sequenze di byte
+    : return : il segreto come sequenza di byte
+    """
     
     if EphID1 > EphID2:
         secret = EphID1 + EphID2
