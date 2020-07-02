@@ -5,6 +5,13 @@ from cryptography.hazmat.primitives import hashes, hmac
 
 import secretsharing as ss
 
+##### Questo è uno script test
+# Il codice in questo script ha il solo scopo di testare le funzioni del 
+# package cryptography e verificare il funzionamento della nostra implementazione di secret sharing.
+# Non rientra in alcun modulo facente parte dell'implementazione definitiva del progetto.
+#####
+
+
 # Utente 1
 seed1 = os.urandom(16)
 
