@@ -7,3 +7,5 @@ class Settings(EnvConfig):
     PORT: int = 8080
     DB_URL: str = ''
     DAY_PARTS: int = 0
+    CERT: str = ''
+    KEY: str = ''

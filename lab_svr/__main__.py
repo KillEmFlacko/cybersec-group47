@@ -11,6 +11,7 @@ from sanic_scheduler import SanicScheduler, task
 from datetime import timedelta
 
 from sqlalchemy import String
+from sqlalchemy.orm import Session
 
 from lab_svr.tables import infects, contacts
 import json
@@ -27,9 +28,8 @@ hash = hashes.Hash(hashes.SHA256(), backend=default_backend())
 iso_format = '%Y-%m-%d'
 
 
-
-# @task(start=timedelta(seconds=5), period=timedelta(seconds=10))
 @lab_svr_app.route('/daily_task')
+# @task(start=timedelta(seconds=5), period=timedelta(seconds=10))
 async def daily_task(req):
     app = req.app
     logger.info("DAILY TASK")
@@ -37,11 +37,15 @@ async def daily_task(req):
     record = await app.db.fetch_all(query)
     last_id = record[0][0]
     params = {'last_id': last_id}
-    resp = requests.get('http://localhost:8080/', params=params)
+    resp = requests.get('https://localhost:8080/', params=params, verify='ca_certs')
     rows_list = resp.json()['skts']
 
-    output_str = 'DAY PART EPHID\n'
+    output_str = 'DAY\tPART\tEPHID\n'
+    insert_txt = '''INSERT INTO "infect"("skt","nonce","created_date","start_date")
+    VALUES
+    '''
     for rec in rows_list:
+        insert_txt += "( '"+rec['skt']+"','"+rec['nonce']+"','"+rec['created_date']+"','"+rec['start_date']+"'),"
         start_date = datetime.strptime(rec['start_date'], iso_format)
         created_date = datetime.strptime(rec['created_date'], iso_format)
         days = (created_date - start_date).days
@@ -66,16 +70,20 @@ async def daily_task(req):
             gen = Generator(bit_gen)
             for j in range(0, app.config.DAY_PARTS):
                 ephid = gen.bytes(16)
-                output_str += str(i) + '\t' + str(j) + '\t' + ephid.hex() + '\n'
                 query_txt = text('SELECT "DELETE_FAKE"(:ephid,:hash)')
                 query_txt = query_txt.bindparams(ephid=ephid.hex(), hash=hash_out_str)
                 result = await app.db.execute(query_txt)
-                logger.info('EphID : '+ephid.hex()+', SKt : '+act_skt.hex())
-                logger.info("Fake contacts found : "+str(result)+', Nonce : '+str(act_nonce or 'None'))
+                if result > 0:
+                    output_str += str(i) + '\t' + str(j) + '\t' + ephid.hex() + '\n'
+                if app.config.DEBUG:
+                    logger.info('EphID : ' + ephid.hex() + ', SKt : ' + act_skt.hex())
+                    logger.info("Fake contacts found : " + str(result) + ', Nonce : ' + str(act_nonce or 'None'))
             h = hash.copy()
             h.update(act_skt)
             act_skt = h.finalize()
-    return response.text(output_str + '\n' + 'OK')
+    # TODO Insert
+
+    return response.text(insert_txt + '\n' + 'OK')
 
 
 def setup_lab_database():
@@ -106,11 +114,13 @@ def init():
     setup_lab_database()
     lab_svr_app.add_route(ShareView.as_view(), '/')
 
+    ssl = {'cert': lab_svr_app.config.CERT, 'key': lab_svr_app.config.KEY}
     lab_svr_app.run(
         host=lab_svr_app.config.HOST,
         port=lab_svr_app.config.PORT,
         debug=lab_svr_app.config.DEBUG,
         auto_reload=lab_svr_app.config.DEBUG,
+        ssl=ssl,
     )
 
 

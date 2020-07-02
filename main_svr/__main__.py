@@ -36,11 +36,13 @@ def init():
     setup_lab_database()
     main_svr_app.add_route(MainView.as_view(), '/')
 
+    ssl = {'cert': main_svr_app.config.CERT, 'key': main_svr_app.config.KEY}
     main_svr_app.run(
         host=main_svr_app.config.HOST,
         port=main_svr_app.config.PORT,
         debug=main_svr_app.config.DEBUG,
         auto_reload=main_svr_app.config.DEBUG,
+        ssl=ssl,
     )
 
 
