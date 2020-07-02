@@ -1,9 +1,21 @@
+
+#####
+# Questo modulo contiene le funzioni che implementano la variante di Shamir's Secret Sharing proposta nel nostro progetto.
+#
+# Il codice che segue è una modifica dell''implementazione pubblicata sulla pagina 
+# https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing
+# sotto i termini di CC0 e OWFa
+# https://creativecommons.org/publicdomain/zero/1.0/
+# http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0
+#####
+
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 
+
 # 13-esimo numero primo di Mersenne
 _PRIME = 2 ** 521 - 1
-
 
 # Valuta il polinomio (lista di coefficienti [a0, a1]) nel punto x.
 # Usata per generare uno share in make_share
