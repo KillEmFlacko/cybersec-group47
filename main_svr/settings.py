@@ -9,3 +9,5 @@ class Settings(EnvConfig):
     DAY_PARTS: int = 0
     CERT: str = ''
     KEY: str = ''
+    DATE_FORMAT: str = ''
+    CA_DIR: str = ''

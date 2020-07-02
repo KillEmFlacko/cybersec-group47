@@ -11,3 +11,5 @@ class Settings(EnvConfig):
     KEY: str = ''
     ID_FILE: str = ''
     MAIN_SVR: str = ''
+    DATE_FORMAT: str = ''
+    CA_DIR: str = ''
