@@ -1,6 +1,8 @@
 # cybersec-group47
  DP3T simulator with a combination of Shamir's secret sharing and succinct commitment to provide pseudo-authenticated data to epidemiologists.
 
+**Leggi** ```Report.pdf``` **per informazioni sullo sviluppo del sistema**
+
 Per utilizzare i server bisogna installare [pipenv](https://pypi.org/project/pipenv/), posizionarsi nella cartella
 del progetto e lanciare ```pipenv install```.
 
